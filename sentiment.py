@@ -34,8 +34,9 @@ class TweetStreamListener(StreamListener):
         else:
             sentiment = "positive"
 
-        # output sentiment
-        print sentiment
+        # add sentiment field to data
+
+        dict_data["sentiment"]=sentiment
 
         # add text and sentiment info to elasticsearch
         es.index(index="sentiment",
@@ -45,7 +46,7 @@ class TweetStreamListener(StreamListener):
                        "message": dict_data["text"],
                        "polarity": tweet.sentiment.polarity,
                        "subjectivity": tweet.sentiment.subjectivity,
-                       "sentiment": sentiment})
+                       "sentiment": dict_data["sentiment"]})
         return True
 
     # on failure
