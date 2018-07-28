@@ -38,15 +38,10 @@ class TweetStreamListener(StreamListener):
 
         dict_data["sentiment"]=sentiment
 
-        # add text and sentiment info to elasticsearch
+        # add tweet's data and sentiment info to elasticsearch
         es.index(index="sentiment",
                  doc_type="test-type",
-                 body={"author": dict_data["user"]["screen_name"],
-                       "date": dict_data["created_at"],
-                       "message": dict_data["text"],
-                       "polarity": tweet.sentiment.polarity,
-                       "subjectivity": tweet.sentiment.subjectivity,
-                       "sentiment": dict_data["sentiment"]})
+                 body=dict_data)
         return True
 
     # on failure
@@ -66,4 +61,4 @@ if __name__ == '__main__':
     stream = Stream(auth, listener)
 
     # search twitter for "congress" keyword
-stream.filter(track=['america'])
+stream.filter(track=['tunisia','tunisie'])
