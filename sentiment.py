@@ -19,6 +19,14 @@ class TweetStreamListener(StreamListener):
 
         # decode json
         dict_data = json.loads(data)
+        if 'extended_entities' in dict_data:
+            del dict_data["extended_entities"]
+        if 'retweeted_status' in dict_data:
+            del dict_data["retweeted_status"]
+        if 'quoted_status' in dict_data:
+            del dict_data["quoted_status"]
+
+
 
         # pass tweet into TextBlob
         tweet = TextBlob(dict_data["text"])
@@ -37,9 +45,11 @@ class TweetStreamListener(StreamListener):
         # add sentiment field to data
 
         dict_data["sentiment"]=sentiment
+        dict_data["polarity"]=tweet.sentiment.polarity
+
 
         # add tweet's data and sentiment info to elasticsearch
-        es.index(index="tnsentiment",
+        es.index(index="last",
                  doc_type="test-type",
                  body=dict_data)
         return True
