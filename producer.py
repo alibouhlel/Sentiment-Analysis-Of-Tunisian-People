@@ -3,14 +3,14 @@ from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
 from textblob import TextBlob
-from elasticsearch import Elasticsearch
+from kafka import KafkaProducer
+
 
 # import twitter keys and tokens
 from config import *
 
-# create instance of elasticsearch
-es = Elasticsearch()
-
+#initiliase the kafka producer
+producer = KafkaProducer(bootstrap_servers=KAFKA_BROKERS)
 
 class TweetStreamListener(StreamListener):
 
@@ -19,6 +19,8 @@ class TweetStreamListener(StreamListener):
 
         # decode json
         dict_data = json.loads(data)
+
+        # delete some fields
         if 'extended_entities' in dict_data:
             del dict_data["extended_entities"]
         if 'retweeted_status' in dict_data:
@@ -26,9 +28,7 @@ class TweetStreamListener(StreamListener):
         if 'quoted_status' in dict_data:
             del dict_data["quoted_status"]
 
-
-
-        # pass tweet into TextBlob
+        # pass tweet into TextBlob in order to calculate it's polarity
         tweet = TextBlob(dict_data["text"])
 
         # output sentiment polarity
@@ -42,16 +42,18 @@ class TweetStreamListener(StreamListener):
         else:
             sentiment = "positive"
 
-        # add sentiment field to data
+        # add sentiment and polarity to data
 
         dict_data["sentiment"]=sentiment
         dict_data["polarity"]=tweet.sentiment.polarity
 
+        #dumps dict_data in order to send it to kafka topic
 
-        # add tweet's data and sentiment info to elasticsearch
-        es.index(index="last",
-                 doc_type="test-type",
-                 body=dict_data)
+        message=json.dumps(dict_data)
+
+        #send the data to kafka the message must be a byte that's why it's encoded
+
+        producer.send(KAFKA_TOPIC, message.encode('utf-8'))
         return True
 
     # on failure
@@ -71,4 +73,4 @@ if __name__ == '__main__':
     stream = Stream(auth, listener)
 
     # search twitter for tunisian's related keywords
-stream.filter(track=['tunisia'])
+stream.filter(track=['tunisia', 'tunisie'])
