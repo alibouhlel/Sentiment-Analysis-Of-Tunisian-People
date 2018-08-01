@@ -73,4 +73,4 @@ if __name__ == '__main__':
     stream = Stream(auth, listener)
 
     # search twitter for tunisian's related keywords
-stream.filter(track=['tunisia', 'tunisie'])
+stream.filter(locations=GEOBOX_TUNISIA)
