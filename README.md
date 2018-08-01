@@ -1,4 +1,4 @@
-# Twitter Logstash-Elasticsearch-Kibana
+# Twitter Elasticsearch-Logstash-Kibana
 public sentiment towards the tunisian politicians and the topics that are being hotly debated in the tunisian media.
 ### Technologies
 
