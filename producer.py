@@ -29,10 +29,12 @@ class TweetStreamListener(StreamListener):
             del dict_data["quoted_status"]
 
         # pass tweet into TextBlob in order to calculate it's polarity
-        tweet = TextBlob(dict_data["text"])
+        if 'text' in dict_data:
+            tweet = TextBlob(dict_data["text"])
+
 
         # output sentiment polarity
-        print tweet.sentiment.polarity
+        print dict_data["lang"]
 
         # determine if sentiment is positive, negative, or neutral
         if tweet.sentiment.polarity < 0:
@@ -73,4 +75,5 @@ if __name__ == '__main__':
     stream = Stream(auth, listener)
 
     # search twitter for tunisian's related keywords
-stream.filter(locations=GEOBOX_TUNISIA)
+#stream.filter(track=['tunisie'])
+stream.filter(follow=MEDIA_TUNISIA)
